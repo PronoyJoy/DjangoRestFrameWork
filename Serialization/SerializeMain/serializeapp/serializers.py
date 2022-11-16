@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
+from .models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES,Student
 
 
 
@@ -25,3 +25,17 @@ class SnippetSerializer(serializers.Serializer):
         instance.save()
         return instance
 
+class StudentSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    student_id = serializers.CharField()
+    year = serializers.IntegerField()
+
+    def create(self, validated_data):
+        return Student.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name',instance.name)
+        instance.student_id = validated_data.get('student_id',instance.student_id)
+        instance.year = validated_data.get('year',instance.year)
+        instance.save()
+        return instance

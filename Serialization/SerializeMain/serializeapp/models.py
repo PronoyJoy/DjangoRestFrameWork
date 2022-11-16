@@ -28,3 +28,6 @@ class Student(models.Model):
 
     class Meta:
         ordering = ['student_id']
+    def __str__(self) -> str:
+        return self.name
+    
