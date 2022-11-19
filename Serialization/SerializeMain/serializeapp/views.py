@@ -1,12 +1,13 @@
 from django.shortcuts import render
-from .models import Student
-from .serializers import StudentSerializer
-# Create your views here.
+from . models import Student,Snippet
+from .serializers import StudentSerializer,SnippetSerializer
+from django.views import View
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import io
+from django.utils.decorators import method_decorator
 
 def StudentIdentity(request,id):
     user = Student.objects.get(id=id)
@@ -106,4 +107,38 @@ def StudentUpdateDelete(request):
     
 
 
+@method_decorator(csrf_exempt,name='dispatch')
+class SnippetApi(View):
 
+    def get(self, request, *args, **kwargs):
+        json_data = request.body
+        stream = io.BytesIO(json_data)
+        py_data = JSONParser().parse(stream)
+        title = py_data.get('title',None)
+        if title is not None:
+            snippet_obj = Snippet.objects.get(title=  title)
+            serializer = SnippetSerializer(snippet_obj)
+            json_data = JSONRenderer().render(serializer.data)
+            return HttpResponse(json_data,content_type='application/json')
+        snippet_obj = Snippet.objects.all()
+        serializer = SnippetSerializer(snippet_obj,many=True)
+        json_data = JSONRenderer().render(serializer.data)
+        return HttpResponse(json_data,content_type='application/json')
+    
+    def post(self, request,*args, **kwargs):
+        json_data = request.body
+        stream = io.BytesIO(json_data)
+        py_data = JSONParser().parse(stream)
+        serializer = SnippetSerializer(data=py_data)
+        if serializer.is_valid():
+            serializer.save()
+            res = {'msg':'created successfully'}
+            json_data = JSONRenderer().render(res)
+            return HttpResponse(json_data,content_type='application/json')
+        json_data = JSONRenderer().render(serializer.errors)
+        return HttpResponse(json_data,content_type='application/json')
+
+
+
+
+        
