@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class SerializeappConfig(AppConfig):
+class AuthenticationConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'serializeapp'
+    name = 'authentication'
